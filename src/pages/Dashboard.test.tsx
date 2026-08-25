@@ -1,5 +1,7 @@
 import { render, screen, fireEvent } from '@testing-library/react';
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
+import '../i18n';
+import i18n from '../i18n';
 
 // Configurable search params for testing deep-linking
 let mockSearchParams = new URLSearchParams();
@@ -260,8 +262,8 @@ describe('Dashboard', () => {
     });
   });
 
-  afterEach(() => {
-    // no-op
+  afterEach(async () => {
+    await i18n.changeLanguage('en');
   });
 
   describe('rendering', () => {
@@ -441,6 +443,38 @@ describe('Dashboard', () => {
       fireEvent.click(closeButton);
 
       expect(modal).toHaveAttribute('data-open', 'false');
+    });
+  });
+
+  describe('localization', () => {
+    it('renders Spanish wallet prompt and share button when locale is changed to es', async () => {
+      vi.mocked(useWalletStore).mockImplementation(((selector: unknown) => {
+        const store = { ...mockWalletStore, status: 'idle', publicKey: null };
+        return selectFromStore(selector, store);
+      }) as never);
+
+      await i18n.changeLanguage('es');
+
+      render(<Dashboard />);
+
+      expect(screen.getByTestId('dashboard-wallet-prompt')).toHaveTextContent(
+        'Conecta tu cartera para enviar predicciones.'
+      );
+      expect(screen.getByTestId('dashboard-connect-now')).toHaveTextContent('Conectar ahora');
+      expect(screen.getByText('Compartir')).toBeInTheDocument();
+    });
+
+    it('renders Spanish empty state when no round is active', async () => {
+      vi.mocked(useRoundStore).mockImplementation((selector: any) => {
+        const store = { ...mockRoundStore, isRoundActive: false };
+        return typeof selector === 'function' ? selector(store) : store;
+      });
+
+      await i18n.changeLanguage('es');
+
+      render(<Dashboard />);
+
+      expect(screen.getByText('No hay rondas activas')).toBeInTheDocument();
     });
   });
 });
