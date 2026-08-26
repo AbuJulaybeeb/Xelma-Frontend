@@ -26,6 +26,10 @@ let placeBetImpl: () => Promise<{ txHash: string }> = async () => ({ txHash: 'TX
 vi.mock('../lib/xelma-contract', () => ({
   place_bet: (...args: any[]) => placeBetImpl(),
   place_precision_prediction: (...args: any[]) => placeBetImpl(),
+  humanizeContractError: (error: unknown) =>
+    error instanceof Error && /reject|cancel/i.test(error.message)
+      ? 'You cancelled the request in your wallet. No transaction was sent.'
+      : 'Something went wrong while submitting your prediction. Please try again.',
   estimatePlaceBet: vi.fn().mockResolvedValue({
     baseFee: '0.0000100',
     resourceFee: '0.0000500',
@@ -171,7 +175,7 @@ describe('BetModal — transaction pending state (#163)', () => {
     await waitFor(() => {
       expect(screen.getByText(/transaction failed/i)).toBeInTheDocument();
     });
-    expect(screen.getByText(/user rejected/i)).toBeInTheDocument();
+    expect(screen.getByText('You cancelled the request in your wallet. No transaction was sent.')).toBeInTheDocument();
     expect(screen.getByRole('button', { name: /retry/i })).toBeInTheDocument();
   });
 
