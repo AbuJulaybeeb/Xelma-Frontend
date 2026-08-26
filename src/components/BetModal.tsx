@@ -64,12 +64,13 @@ export default function BetModal({ isOpen, onClose, predictionData, onSuccess, o
   const publicKey = useWalletStore((s) => s.publicKey);
   const connect = useWalletStore((s) => s.connect);
   const balance = useWalletStore((s) => s.balance);
+  const isWatchOnly = useWalletStore((s) => s.isWatchOnly);
   const isAuthenticated = useAuthStore((s) => s.isAuthenticated);
 
   // Shared transaction status machine (preparing → signing → submitting → syncing)
   const tx = useTxStatusMachine();
 
-  const initialView = (!isConnected || !isAuthenticated) ? 'wallet_required' : 'confirm';
+  const initialView = (!isConnected || !isAuthenticated || isWatchOnly) ? 'wallet_required' : 'confirm';
   const [view, setView] = useState<ModalView>(initialView);
   const [isConnecting, setIsConnecting] = useState(false);
   const [mode, setMode] = useState<PredictionMode>(predictionData?.isLegend ? 'precision' : 'direction');
@@ -165,7 +166,7 @@ export default function BetModal({ isOpen, onClose, predictionData, onSuccess, o
   if (isOpen !== prevIsOpen) {
     setPrevIsOpen(isOpen);
     if (isOpen) {
-      const targetView = (!isConnected || !isAuthenticated) ? 'wallet_required' : 'confirm';
+      const targetView = (!isConnected || !isAuthenticated || isWatchOnly) ? 'wallet_required' : 'confirm';
       setView(targetView);
       tx.reset();
       setPrevPredictionData(predictionData);
@@ -345,17 +346,35 @@ export default function BetModal({ isOpen, onClose, predictionData, onSuccess, o
 
         {view === 'wallet_required' && (
           <div className="text-center py-4">
-            <h3 className="text-lg font-bold text-red-400 mb-2">Wallet & Auth Required</h3>
-            <p className="text-gray-400 text-sm mb-6">
-              You need to connect and authenticate your Stellar wallet to submit predictions.
-            </p>
-            <button
-              onClick={handleConnectAndAuth}
-              disabled={isConnecting}
-              className="w-full py-3 bg-[#2C4BFD] hover:bg-[#2C4BFD]/80 rounded-xl font-semibold transition disabled:opacity-60 disabled:cursor-not-allowed"
-            >
-              {isConnecting ? 'Connecting…' : 'Connect & Authenticate'}
-            </button>
+            {isWatchOnly ? (
+              <>
+                <h3 className="text-lg font-bold text-purple-400 mb-2">Watch-Only Mode</h3>
+                <p className="text-gray-400 text-sm mb-6">
+                  You are viewing this address in watch-only mode. Connect a wallet with signing capability to submit predictions.
+                </p>
+                <button
+                  onClick={handleConnectAndAuth}
+                  disabled={isConnecting}
+                  className="w-full py-3 bg-[#2C4BFD] hover:bg-[#2C4BFD]/80 rounded-xl font-semibold transition disabled:opacity-60 disabled:cursor-not-allowed"
+                >
+                  {isConnecting ? 'Connecting…' : 'Connect Wallet'}
+                </button>
+              </>
+            ) : (
+              <>
+                <h3 className="text-lg font-bold text-red-400 mb-2">Wallet & Auth Required</h3>
+                <p className="text-gray-400 text-sm mb-6">
+                  You need to connect and authenticate your Stellar wallet to submit predictions.
+                </p>
+                <button
+                  onClick={handleConnectAndAuth}
+                  disabled={isConnecting}
+                  className="w-full py-3 bg-[#2C4BFD] hover:bg-[#2C4BFD]/80 rounded-xl font-semibold transition disabled:opacity-60 disabled:cursor-not-allowed"
+                >
+                  {isConnecting ? 'Connecting…' : 'Connect & Authenticate'}
+                </button>
+              </>
+            )}
           </div>
         )}
 
