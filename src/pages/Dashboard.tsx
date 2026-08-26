@@ -31,6 +31,9 @@ import { NoRoundsIllustration } from '../components/icons/StellarIllustrations';
 import DashboardSkeleton from '../components/DashboardSkeleton';
 import FriendbotFundCard from '../components/FriendbotFundCard';
 import NetworkMismatchCard from '../components/NetworkMismatchCard';
+import ProfileSummaryCard from '../components/ProfileSummaryCard';
+import SorobanInspectorPanel from '../components/SorobanInspectorPanel';
+import { useReducedMotion } from '../hooks/useReducedMotion';
 
 import { inspectSorobanState, type SorobanInspectorSnapshot } from "../lib/xelma-contract";
 import { mockUserStats, mockRounds } from "../data/mockData";
@@ -180,7 +183,6 @@ const activeRoundId = useRoundStore((state) => state.activeRound?.id ?? null);
 
   // Clear the entry marker whenever the active round changes.
   useEffect(() => {
-    // eslint-disable-next-line react-hooks/set-state-in-effect
     setEntryPrice(null);
   }, [activeRoundId]);
 
@@ -227,6 +229,25 @@ const activeRoundId = useRoundStore((state) => state.activeRound?.id ?? null);
     [normalizedAsset],
   );
 
+  // Scroll the deep-linked RoundCard into view once it's actually rendered
+  // (it may be filtered out by the selected asset tab, so we only scroll
+  // when it resolves to a visible card).
+  const roundCardRefs = useRef(new Map<number, HTMLElement>());
+  const { reduced: prefersReducedMotion } = useReducedMotion();
+
+  useEffect(() => {
+    if (deepLinkedRoundId === null) return;
+    if (!filteredRounds.some((r) => r.id === deepLinkedRoundId)) return;
+
+    const card = roundCardRefs.current.get(deepLinkedRoundId);
+    if (!card) return;
+
+    card.scrollIntoView({
+      behavior: prefersReducedMotion ? "auto" : "smooth",
+      block: "center",
+    });
+  }, [deepLinkedRoundId, filteredRounds, prefersReducedMotion]);
+
   const fetchStats = useCallback(async () => {
     if (!isWalletConnected) {
       setStats(null);
@@ -264,7 +285,6 @@ const activeRoundId = useRoundStore((state) => state.activeRound?.id ?? null);
   }, [isWalletConnected, publicKey]);
 
   useEffect(() => {
-    // eslint-disable-next-line react-hooks/set-state-in-effect
     void fetchStats();
     void fetchActivities();
   }, [fetchStats, fetchActivities]);
@@ -291,7 +311,6 @@ const activeRoundId = useRoundStore((state) => state.activeRound?.id ?? null);
   }, [isWalletConnected, publicKey]);
 
   useEffect(() => {
-    // eslint-disable-next-line react-hooks/set-state-in-effect
     void refreshInspector();
   }, [refreshInspector]);
 
@@ -477,6 +496,13 @@ const activeRoundId = useRoundStore((state) => state.activeRound?.id ?? null);
                 {filteredRounds.map((round) => (
                   <RoundCard
                     key={round.id}
+                    ref={(el) => {
+                      if (el) {
+                        roundCardRefs.current.set(round.id, el);
+                      } else {
+                        roundCardRefs.current.delete(round.id);
+                      }
+                    }}
                     round={round}
                     isHighlighted={deepLinkedRoundId === round.id}
                     onSubmitPrediction={() => {
@@ -554,6 +580,7 @@ const activeRoundId = useRoundStore((state) => state.activeRound?.id ?? null);
         {!isLoading && isRoundActive && (
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
             <div className="dashboard__center lg:col-span-1 flex flex-col gap-6">
+              {isWalletConnected && <ProfileSummaryCard />}
               <PredictionCard
                 isWalletConnected={isWalletConnected}
                 isRoundActive={isRoundActive}
@@ -623,6 +650,30 @@ const activeRoundId = useRoundStore((state) => state.activeRound?.id ?? null);
         )}
       </div>
 
+      {/* Mobile sticky predict action bar — visible only on small screens */}
+      {!isLoading && isRoundActive && (
+        <div
+          className="lg:hidden fixed bottom-0 left-0 right-0 z-40 bg-[#0A0F1A]/95 backdrop-blur-md border-t border-[#2C4BFD]/20 px-4 py-3"
+          style={{ paddingBottom: 'max(0.75rem, env(safe-area-inset-bottom))' }}
+          data-testid="mobile-predict-bar"
+        >
+          <button
+            type="button"
+            onClick={() => {
+              setPendingPrediction({
+                direction: 'UP',
+                stake: '',
+                isLegend: false,
+              });
+              setIsBetModalOpen(true);
+            }}
+            className="w-full py-3.5 bg-[#2C4BFD] hover:bg-[#2C4BFD]/90 rounded-xl font-bold text-sm transition active:scale-[0.98] min-h-[44px]"
+          >
+            Make Prediction
+          </button>
+        </div>
+      )}
+
       <BetModal
         isOpen={isBetModalOpen}
         onClose={() => {
@@ -649,7 +700,6 @@ setOptimisticPrediction(null);
         isOpen={Boolean(resolvedRound)}
         onClose={dismissResolvedRound}
         result={endRoundResult}
-        playResolveSound={roundSoundEnabled}
       />
       <EventLogDrawer isOpen={isEventLogOpen} onClose={() => setIsEventLogOpen(false)} />
     </div>

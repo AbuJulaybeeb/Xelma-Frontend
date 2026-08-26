@@ -1,11 +1,12 @@
 // ISSUE: Wire place_bet() to Xelma TypeScript bindings (xelma-contract)
 // ISSUE: Real-time round updates via Soroban event polling
 
-import { useEffect, useRef, useState } from 'react';
+import { forwardRef, useEffect, useRef, useState } from 'react';
 import type { MockRound } from '../types';
 import CountdownTimer from './CountdownTimer';
 import { formatVXLM, formatPercent } from '../lib/utils';
 import { TRANSITION } from '../utils/motion';
+import { useReducedMotion } from '../hooks/useReducedMotion';
 
 const ASSET_ICONS: Record<string, string> = {
   BTC: '₿',
@@ -36,7 +37,11 @@ function poolSize(round: MockRound): number {
   return round.totalPool ?? 0;
 }
 
-export default function RoundCard({ round, onSubmitPrediction, isHighlighted = false }: RoundCardProps) {
+const RoundCard = forwardRef<HTMLElement, RoundCardProps>(function RoundCard(
+  { round, onSubmitPrediction, isHighlighted = false },
+  ref,
+) {
+  const { reduced } = useReducedMotion();
   const [endTime, setEndTime] = useState(() => new Date(Date.now() + round.closesInSeconds * 1000));
   const total = poolSize(round);
   const upRatio = round.mode === 'updown' && total > 0 ? (round.poolUp ?? 0) / total : 0;
@@ -68,9 +73,10 @@ export default function RoundCard({ round, onSubmitPrediction, isHighlighted = f
 
   return (
     <article
+      ref={ref}
       className={`glass-card flex min-w-0 flex-col gap-4 rounded-2xl p-4 transition-all duration-300 sm:p-5 ${TRANSITION} ${
         isHighlighted ? 'accent-border-teal' : ''
-      }`}
+      } ${isHighlighted && !reduced ? 'accent-pulse' : ''}`}
       data-testid="round-card"
       data-highlighted={isHighlighted ? 'true' : 'false'}
     >
@@ -164,4 +170,6 @@ export default function RoundCard({ round, onSubmitPrediction, isHighlighted = f
       </button>
     </article>
   );
-}
+});
+
+export default RoundCard;
