@@ -179,6 +179,7 @@ export default function BetModal({ isOpen, onClose, predictionData, onSuccess, o
       setFeeEstimate(null);
       setFeeEstimateStatus('idle');
       setFeeEstimateError(null);
+      setOutcomeAnnouncement('');
     }
   }
 
@@ -297,6 +298,28 @@ export default function BetModal({ isOpen, onClose, predictionData, onSuccess, o
 
   const isTimelineVisible = view === 'confirm' && tx.step !== 'idle';
 
+  const [outcomeAnnouncement, setOutcomeAnnouncement] = useState('');
+  const prevTxStepRef = useRef(tx.step);
+
+  useEffect(() => {
+    if (tx.step === prevTxStepRef.current) return;
+    prevTxStepRef.current = tx.step;
+
+    const timer = window.setTimeout(() => {
+      if (tx.step === 'success') {
+        setOutcomeAnnouncement(
+          'Prediction submitted successfully. Your prediction has been successfully written on-chain and registered.',
+        );
+      } else if (tx.step === 'error') {
+        setOutcomeAnnouncement(`Transaction failed. ${tx.errorMessage || 'An unexpected error occurred.'}`);
+      } else {
+        setOutcomeAnnouncement('');
+      }
+    }, 0);
+
+    return () => window.clearTimeout(timer);
+  }, [tx.step, tx.errorMessage]);
+
   const handleDirectionRef = useRef<(dir: 'UP' | 'DOWN') => void>(() => {});
   const handleConfirmRef = useRef<() => void>(() => {});
 
@@ -334,6 +357,16 @@ export default function BetModal({ isOpen, onClose, predictionData, onSuccess, o
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+      {outcomeAnnouncement && (
+        <div
+          aria-live={tx.step === 'error' ? 'assertive' : 'polite'}
+          aria-atomic="true"
+          className="sr-only"
+          role={tx.step === 'error' ? 'alert' : 'status'}
+        >
+          {outcomeAnnouncement}
+        </div>
+      )}
       <div className={`absolute inset-0 bg-black/60 backdrop-blur-sm ${MODAL_OVERLAY}`} onClick={onClose} />
       <div className={`glass-card relative z-10 w-full max-w-md rounded-2xl bg-gray-900 border border-gray-800 p-6 text-white shadow-2xl ${MODAL_CONTENT}`}>
         <button
