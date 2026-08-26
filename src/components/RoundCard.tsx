@@ -4,6 +4,7 @@
 import { forwardRef, useEffect, useRef, useState } from 'react';
 import type { MockRound } from '../types';
 import CountdownTimer from './CountdownTimer';
+import AssetIcon from './icons/AssetIcon';
 import { formatVXLM, formatPercent } from '../lib/utils';
 import { TRANSITION } from '../utils/motion';
 import { useReducedMotion } from '../hooks/useReducedMotion';
@@ -11,12 +12,6 @@ import { useRoundCountdown } from '../hooks/useRoundCountdown';
 
 const URGENCY_THRESHOLD_SECONDS = 30;
 const URGENCY_THRESHOLD_MS = URGENCY_THRESHOLD_SECONDS * 1000;
-
-const ASSET_ICONS: Record<string, string> = {
-  BTC: '₿',
-  ETH: 'Ξ',
-  XLM: '✦',
-};
 
 interface RoundCardProps {
   round: MockRound;
@@ -110,10 +105,10 @@ const RoundCard = forwardRef<HTMLElement, RoundCardProps>(function RoundCard(
       <header className="flex min-w-0 flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-start sm:justify-between sm:gap-3">
         <div className="flex min-w-0 items-center gap-3">
           <span
-            className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-[#2C4BFD]/15 text-lg font-bold text-[#BEC7FE]"
+            className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-[#2C4BFD]/15 text-[#BEC7FE]"
             aria-hidden
           >
-            {ASSET_ICONS[round.asset]}
+            <AssetIcon asset={round.asset} size={24} />
           </span>
           <div className="min-w-0 flex-1">
             <h3 className="text-lg font-bold text-white">{round.asset}/USD</h3>
@@ -162,40 +157,42 @@ const RoundCard = forwardRef<HTMLElement, RoundCardProps>(function RoundCard(
         </div>
       </div>
 
-      <p className="break-words mt-4 text-sm font-semibold text-gray-300" data-testid="round-card-pool">
-        Pool: {formatVXLM(total)}
-      </p>
-
-      {round.mode === 'updown' ? (
-        <div className="mt-1">
-          <div className="flex h-2 overflow-hidden rounded-full bg-gray-800">
-            <div
-              className="bg-[#2C4BFD] transition-all"
-              style={{ width: `${upPct}%` }}
-              title={`UP ${formatPercent(upPct / 100, 0)}`}
-            />
-            <div
-              className="bg-rose-500 transition-all"
-              style={{ width: `${downPct}%` }}
-              title={`DOWN ${formatPercent(downPct / 100, 0)}`}
-            />
-          </div>
-          <div className="mt-1 flex justify-between text-xs text-gray-500">
-            <span className="text-[#BEC7FE]">UP {formatPercent(upPct / 100, 0)}</span>
-            <span className="text-rose-400">DOWN {formatPercent(downPct / 100, 0)}</span>
-          </div>
-        </div>
-      ) : (
-        <p className="mt-1 text-sm text-cyan-300">
-          {round.predictionCount ?? 0} forecasts submitted
+      <div className="flex flex-col gap-1.5">
+        <p className="break-words text-sm font-semibold text-gray-300" data-testid="round-card-pool">
+          Pool: {formatVXLM(total)}
         </p>
-      )}
+
+        {round.mode === 'updown' ? (
+          <div>
+            <div className="flex h-2 overflow-hidden rounded-full bg-gray-800">
+              <div
+                className="bg-[#2C4BFD] transition-all"
+                style={{ width: `${upPct}%` }}
+                title={`UP ${formatPercent(upPct / 100, 0)}`}
+              />
+              <div
+                className="bg-rose-500 transition-all"
+                style={{ width: `${downPct}%` }}
+                title={`DOWN ${formatPercent(downPct / 100, 0)}`}
+              />
+            </div>
+            <div className="mt-1 flex justify-between text-xs text-gray-500">
+              <span className="text-[#BEC7FE]">UP {formatPercent(upPct / 100, 0)}</span>
+              <span className="text-rose-400">DOWN {formatPercent(downPct / 100, 0)}</span>
+            </div>
+          </div>
+        ) : (
+          <p className="text-sm text-cyan-300">
+            {round.predictionCount ?? 0} forecasts submitted
+          </p>
+        )}
+      </div>
 
       <button
         type="button"
         disabled={round.closesInSeconds <= 0}
         onClick={() => onSubmitPrediction(round)}
-        className="btn-primary mt-2 flex min-h-[44px] w-full items-center justify-center rounded-xl px-4 py-3 text-sm font-bold disabled:cursor-not-allowed disabled:opacity-50"
+        className="btn-primary flex min-h-[44px] w-full items-center justify-center rounded-xl px-4 py-3 text-sm font-bold disabled:cursor-not-allowed disabled:opacity-50"
         data-testid="round-card-submit"
       >
         Submit Prediction
