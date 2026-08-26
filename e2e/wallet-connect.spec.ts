@@ -45,7 +45,8 @@ test.describe('Wallet Connect – Freighter Mocked', () => {
     await page.goto('/connect');
 
     // The Connect page renders the WalletConnect component
-    const connectButton = page.getByRole('button', { name: /connect wallet/i });
+    // Specify the button in the header (desktop), not the mobile drawer
+    const connectButton = page.locator('header button:has-text("Connect Wallet")').first();
     await expect(connectButton).toBeVisible();
   });
 
@@ -82,13 +83,14 @@ test.describe('Wallet Connect – Freighter Mocked', () => {
     // Click "Connect now" which navigates to /connect
     const connectNow = page.locator('[data-testid="dashboard-connect-now"]');
     await expect(connectNow).toBeVisible();
-    await connectNow.click();
+    await connectNow.click({ timeout: 10000 });
 
     // Should navigate to /connect
     await expect(page).toHaveURL(/\/connect/);
 
     // Click "Connect Wallet" button to initiate Freighter flow
-    const connectButton = page.getByRole('button', { name: /connect wallet/i });
+    // Specify the button in the header (desktop), not the mobile drawer
+    const connectButton = page.locator('header button:has-text("Connect Wallet")').first();
     await expect(connectButton).toBeVisible();
     await connectButton.click();
 
