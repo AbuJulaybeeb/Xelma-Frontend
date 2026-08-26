@@ -178,8 +178,10 @@ const activeRoundId = useRoundStore((state) => state.activeRound?.id ?? null);
 
   // Clear the entry marker whenever the active round changes.
   useEffect(() => {
-    // eslint-disable-next-line react-hooks/set-state-in-effect
-    setEntryPrice(null);
+    const timer = setTimeout(() => {
+      setEntryPrice(null);
+    }, 0);
+    return () => clearTimeout(timer);
   }, [activeRoundId]);
 
   const [stats, setStats] = useState<UserStats | null>(null);
@@ -262,9 +264,11 @@ const activeRoundId = useRoundStore((state) => state.activeRound?.id ?? null);
   }, [isWalletConnected, publicKey]);
 
   useEffect(() => {
-    // eslint-disable-next-line react-hooks/set-state-in-effect
-    void fetchStats();
-    void fetchActivities();
+    const timer = setTimeout(() => {
+      void fetchStats();
+      void fetchActivities();
+    }, 0);
+    return () => clearTimeout(timer);
   }, [fetchStats, fetchActivities]);
 
   const refreshInspector = useCallback(async () => {
@@ -289,8 +293,10 @@ const activeRoundId = useRoundStore((state) => state.activeRound?.id ?? null);
   }, [isWalletConnected, publicKey]);
 
   useEffect(() => {
-    // eslint-disable-next-line react-hooks/set-state-in-effect
-    void refreshInspector();
+    const timer = setTimeout(() => {
+      void refreshInspector();
+    }, 0);
+    return () => clearTimeout(timer);
   }, [refreshInspector]);
 
   const handleRoundSoundToggle = (enabled: boolean) => {
