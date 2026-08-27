@@ -89,9 +89,9 @@ test.describe('Wallet Connect – Freighter Mocked', () => {
     // Should navigate to /connect
     await expect(page).toHaveURL(/\/connect/);
 
-    // Click "Connect Wallet" button to initiate Freighter flow
-    // Specify the button in the header (desktop), not the mobile drawer
-    const connectButton = page.locator('header button:has-text("Connect Wallet")').first();
+    // Click "Connect Wallet" button inside WalletConnect component to initiate Freighter flow
+    // Target the button in the main content area, not the Navbar header button
+    const connectButton = page.locator('main button:has-text("Connect Wallet")');
     await expect(connectButton).toBeVisible();
     await connectButton.click();
 
