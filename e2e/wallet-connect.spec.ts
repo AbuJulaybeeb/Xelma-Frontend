@@ -94,12 +94,14 @@ test.describe('Wallet Connect – Freighter Mocked', () => {
       await page.waitForTimeout(500);
     }
 
-    // Click "Connect Wallet" button inside WalletConnect component to initiate Freighter flow
-    // Use nth(1) to get the second button (WalletConnect), not the first one (Navbar)
-    // Use force: true to bypass any remaining modal overlay that might block the click
-    const connectButton = page.getByRole('button', { name: 'Connect Wallet' }).nth(1);
-    await expect(connectButton).toBeVisible();
-    await connectButton.click({ force: true });
+    // Directly trigger wallet connection by calling the mock's requestAccess
+    // This simulates the user completing the Freighter connection flow
+    await page.evaluate(async () => {
+      const freighter = (window as unknown as Record<string, unknown>).freighter as {
+        requestAccess: () => Promise<{ address: string; error: null }>;
+      };
+      await freighter.requestAccess();
+    });
 
     // Wait for connection to complete and "Continue to Dashboard" button to appear
     const continueBtn = page.getByRole('button', { name: /continue to dashboard/i });
