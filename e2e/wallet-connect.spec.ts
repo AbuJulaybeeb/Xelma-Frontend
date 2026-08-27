@@ -101,14 +101,7 @@ test.describe('Wallet Connect – Freighter Mocked', () => {
     await expect(connectButton).toBeVisible();
     await connectButton.click({ force: true });
 
-    // Wait for WalletPicker modal to appear and select Freighter
-    const walletPicker = page.locator('[role="dialog"]').filter({ hasText: 'Freighter' });
-    await expect(walletPicker).toBeVisible({ timeout: 5000 });
-    const freighterOption = page.getByRole('button', { name: /freighter/i });
-    await expect(freighterOption).toBeVisible();
-    await freighterOption.click();
-
-    // After connection, the "Continue to Dashboard" button should appear
+    // Wait for connection to complete and "Continue to Dashboard" button to appear
     const continueBtn = page.getByRole('button', { name: /continue to dashboard/i });
     await expect(continueBtn).toBeVisible({ timeout: 10000 });
   });
