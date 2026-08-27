@@ -80,6 +80,12 @@ test.describe('Wallet Connect – Freighter Mocked', () => {
     await expect(walletPrompt).toBeVisible();
     await expect(walletPrompt).toContainText('Connect your wallet');
 
+    // Close any modal overlay that might be present (e.g., onboarding modal)
+    const modalOverlay = page.locator('.fixed.inset-0.z-\\[200\\]');
+    if (await modalOverlay.isVisible().catch(() => false)) {
+      await page.keyboard.press('Escape');
+    }
+
     // Click "Connect now" which navigates to /connect
     const connectNow = page.locator('[data-testid="dashboard-connect-now"]');
     await expect(connectNow).toBeVisible();
