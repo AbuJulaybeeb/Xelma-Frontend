@@ -649,7 +649,7 @@ const activeRoundId = useRoundStore((state) => state.activeRound?.id ?? null);
               });
               setIsBetModalOpen(true);
             }}
-            className="w-full py-3.5 bg-[#2C4BFD] hover:bg-[#2C4BFD]/90 rounded-xl font-bold text-sm transition active:scale-[0.98] min-h-[44px]"
+            className="w-full py-3.5 bg-[#2C4BFD] hover:bg-[#2C4BFD]/90 rounded-xl font-bold text-sm transition active:scale-[0.98] min-h-[44px] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#22d3ee] focus-visible:ring-offset-2 focus-visible:ring-offset-[#0A0F1A]"
           >
             Make Prediction
           </button>
