@@ -84,6 +84,13 @@ test.describe('Wallet Connect – Freighter Mocked', () => {
     // The button click may be intercepted by event handlers
     await page.goto('/connect');
 
+    // Close any modal overlay that might be present (e.g., onboarding modal)
+    const modalOverlay = page.locator('.fixed.inset-0.z-\\[200\\]');
+    if (await modalOverlay.isVisible().catch(() => false)) {
+      await page.keyboard.press('Escape');
+      await page.waitForTimeout(500);
+    }
+
     // Click "Connect Wallet" button inside WalletConnect component to initiate Freighter flow
     // Use nth(1) to get the second button (WalletConnect), not the first one (Navbar)
     const connectButton = page.getByRole('button', { name: 'Connect Wallet' }).nth(1);
