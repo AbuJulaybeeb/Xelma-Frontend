@@ -5,10 +5,13 @@ const MOCK_ADDRESS = 'GBHExampleAddressForTestingPurposesOnly1234567890ABCDE';
 /** Inject a fake Freighter wallet object before any app code runs. */
 function mockFreighter(page: import('@playwright/test').Page) {
   return page.addInitScript(() => {
+    let connected = false;
     (window as unknown as Record<string, unknown>).freighter = {
-      isConnected: () => Promise.resolve({ isConnected: false }),
-      requestAccess: () =>
-        Promise.resolve({ address: MOCK_ADDRESS, error: null }),
+      isConnected: () => Promise.resolve({ isConnected: connected }),
+      requestAccess: () => {
+        connected = true;
+        return Promise.resolve({ address: MOCK_ADDRESS, error: null });
+      },
       getAddress: () =>
         Promise.resolve({ address: MOCK_ADDRESS, error: null }),
       getNetwork: () => Promise.resolve({ network: 'TESTNET', error: null }),
