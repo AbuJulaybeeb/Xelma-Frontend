@@ -6,7 +6,7 @@ const MOCK_ADDRESS = 'GBHExampleAddressForTestingPurposesOnly1234567890ABCDE';
 function mockFreighter(page: import('@playwright/test').Page) {
   return page.addInitScript(() => {
     (window as unknown as Record<string, unknown>).freighter = {
-      isConnected: () => Promise.resolve({ isConnected: true }),
+      isConnected: () => Promise.resolve({ isConnected: false }),
       requestAccess: () =>
         Promise.resolve({ address: MOCK_ADDRESS, error: null }),
       getAddress: () =>
