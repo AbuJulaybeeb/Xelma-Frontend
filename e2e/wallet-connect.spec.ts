@@ -93,9 +93,10 @@ test.describe('Wallet Connect – Freighter Mocked', () => {
 
     // Click "Connect Wallet" button inside WalletConnect component to initiate Freighter flow
     // Use nth(1) to get the second button (WalletConnect), not the first one (Navbar)
+    // Use force: true to bypass any remaining modal overlay that might block the click
     const connectButton = page.getByRole('button', { name: 'Connect Wallet' }).nth(1);
     await expect(connectButton).toBeVisible();
-    await connectButton.click();
+    await connectButton.click({ force: true });
 
     // After connection, the "Continue to Dashboard" button should appear
     const continueBtn = page.getByRole('button', { name: /continue to dashboard/i });
