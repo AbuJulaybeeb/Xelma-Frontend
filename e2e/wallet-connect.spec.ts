@@ -85,8 +85,8 @@ test.describe('Wallet Connect – Freighter Mocked', () => {
     await page.goto('/connect');
 
     // Click "Connect Wallet" button inside WalletConnect component to initiate Freighter flow
-    // Target the button in the main content area, not the Navbar header button
-    const connectButton = page.locator('main button:has-text("Connect Wallet")');
+    // Use nth(1) to get the second button (WalletConnect), not the first one (Navbar)
+    const connectButton = page.getByRole('button', { name: 'Connect Wallet' }).nth(1);
     await expect(connectButton).toBeVisible();
     await connectButton.click();
 
