@@ -103,6 +103,9 @@ test.describe('Wallet Connect – Freighter Mocked', () => {
       await freighter.requestAccess();
     });
 
+    // Reload the page to trigger wallet store to re-check connection state
+    await page.reload();
+
     // Wait for connection to complete and "Continue to Dashboard" button to appear
     const continueBtn = page.getByRole('button', { name: /continue to dashboard/i });
     await expect(continueBtn).toBeVisible({ timeout: 10000 });
