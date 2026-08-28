@@ -23,6 +23,12 @@ import { useRoundStore } from "../store/useRoundStore";
 import type { Round, UserPrediction, UserStats } from "../lib/api-client";
 import { educationApi, statsApi, predictionsApi } from "../lib/api-client";
 import { useWalletStore, selectIsWalletConnected } from "../store/useWalletStore";
+import { useSettingsStore, selectSoundEnabled } from "../store/useSettingsStore";
+import {
+  bindSoundPreference,
+  clearSoundPreferenceBinding,
+  playRoundResolutionCue,
+} from "../utils/audioController";
 import { TipCard } from "../components/education/TipCard";
 import type { Tip } from "../types/education";
 import EmptyState from '../components/EmptyState';
@@ -193,7 +199,7 @@ const activeRoundId = useRoundStore((state) => state.activeRound?.id ?? null);
   const [activitiesError, setActivitiesError] = useState<string | null>(null);
   const [inspector, setInspector] = useState<SorobanInspectorSnapshot | null>(null);
   const [isInspectorLoading, setIsInspectorLoading] = useState(false);
-  const [roundSoundEnabled, setRoundSoundEnabled] = useState(() => localStorage.getItem("xelma_round_sound") === "1");
+  const soundEnabled = useSettingsStore(selectSoundEnabled);
 
   // Asset tab state from URL query param
   const [searchParams] = useSearchParams();
@@ -312,11 +318,13 @@ const activeRoundId = useRoundStore((state) => state.activeRound?.id ?? null);
     void refreshInspector();
   }, [refreshInspector]);
 
-  const handleRoundSoundToggle = (enabled: boolean) => {
-    setRoundSoundEnabled(enabled);
-    localStorage.setItem('xelma_round_sound', enabled ? '1' : '0');
-  };
-
+  // Bind the audio controller to the settings store so round-resolution cues
+  // respect the same preference as the Settings "Test sound" tone, even
+  // though this page never mounts Settings.tsx.
+  useEffect(() => {
+    bindSoundPreference(() => useSettingsStore.getState().soundEnabled);
+    return () => clearSoundPreferenceBinding();
+  }, []);
 
   useEffect(() => {
     const { fetchActiveRound, subscribeToRoundEvents } = useRoundStore.getState();
@@ -391,6 +399,13 @@ const activeRoundId = useRoundStore((state) => state.activeRound?.id ?? null);
 
   const endRoundResult = getEndRoundResult(resolvedRound);
 
+  // Play the round-resolution cue exactly once per resolved round.
+  useEffect(() => {
+    if (!resolvedRound) return;
+    if (!soundEnabled) return;
+    playRoundResolutionCue(endRoundResult.isWin);
+  }, [resolvedRound, endRoundResult.isWin, soundEnabled]);
+
   return (
     <div className="xelma-grid-bg min-h-screen px-4 py-8 sm:px-6 lg:px-8">
       {/* Opt-in community chat (ported from the legacy /play view). Self-positions
@@ -402,15 +417,6 @@ const activeRoundId = useRoundStore((state) => state.activeRound?.id ?? null);
 
         {!isLoading && (
           <div className="mb-4 flex flex-wrap items-center justify-end gap-3">
-            <label className="inline-flex min-h-[40px] items-center gap-2 rounded-lg border border-white/10 bg-white/5 px-4 py-2 text-sm text-gray-300">
-              <input
-                type="checkbox"
-                checked={roundSoundEnabled}
-                onChange={(event) => handleRoundSoundToggle(event.target.checked)}
-                className="accent-cyan-400"
-              />
-              Round sound
-            </label>
             <button
               type="button"
               onClick={() => setIsChatOpen((open) => !open)}
