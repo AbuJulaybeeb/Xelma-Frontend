@@ -9,6 +9,8 @@ import { formatVXLM, formatPercent } from '../lib/utils';
 import { TRANSITION } from '../utils/motion';
 import { useReducedMotion } from '../hooks/useReducedMotion';
 import { useRoundCountdown } from '../hooks/useRoundCountdown';
+import { GlassCard } from './ui/GlassCard';
+import { StatusPill } from './ui/StatusPill';
 
 const URGENCY_THRESHOLD_SECONDS = 30;
 const URGENCY_THRESHOLD_MS = URGENCY_THRESHOLD_SECONDS * 1000;
@@ -90,9 +92,10 @@ const RoundCard = forwardRef<HTMLElement, RoundCardProps>(function RoundCard(
   }, [isUrgent]);
 
   return (
-    <article
+    <GlassCard
+      as="article"
       ref={ref}
-      className={`glass-card flex min-w-0 flex-col gap-4 rounded-2xl p-4 transition-all duration-300 sm:p-5 ${TRANSITION} ${
+      className={`flex min-w-0 flex-col gap-4 rounded-2xl p-4 transition-all duration-300 sm:p-5 ${TRANSITION} ${
         isHighlighted ? 'accent-border-teal' : ''
       } ${isHighlighted && !reduced ? 'accent-pulse' : ''}`}
       data-testid="round-card"
@@ -118,15 +121,12 @@ const RoundCard = forwardRef<HTMLElement, RoundCardProps>(function RoundCard(
           </div>
         </div>
 
-        <span
-          className={`self-start rounded-full px-3 py-1 text-xs font-bold uppercase tracking-wide sm:self-auto ${
-            round.mode === 'updown'
-              ? 'bg-[#2C4BFD]/15 text-[#BEC7FE]'
-              : 'bg-cyan-500/15 text-cyan-300'
-          }`}
+        <StatusPill
+          tone={round.mode === 'updown' ? 'blue' : 'cyan'}
+          className="self-start px-3 py-1 text-xs font-bold uppercase tracking-wide sm:self-auto"
         >
           {round.mode === 'updown' ? 'UP/DOWN' : 'PRECISION'}
-        </span>
+        </StatusPill>
       </header>
 
       <div
@@ -142,13 +142,15 @@ const RoundCard = forwardRef<HTMLElement, RoundCardProps>(function RoundCard(
             {getStatusMeta(round, round.closesInSeconds).label}
           </span>
           {isUrgent && (
-            <span
-              className="inline-flex items-center gap-1.5 rounded-full border border-rose-500/40 bg-rose-500/10 px-2.5 py-0.5 text-[11px] font-bold uppercase tracking-wider text-rose-300"
+            <StatusPill
+              tone="rose"
+              dot
+              dotClassName="status-dot status-dot-urgent"
+              className="px-2.5 py-0.5 text-[11px] font-bold uppercase tracking-wider"
               data-testid="round-card-urgency"
             >
-              <span className="status-dot status-dot-urgent" aria-hidden="true" />
               Under 30s
-            </span>
+            </StatusPill>
           )}
         </div>
         <div className="flex items-center gap-2 whitespace-nowrap text-sm text-gray-400">
@@ -197,7 +199,7 @@ const RoundCard = forwardRef<HTMLElement, RoundCardProps>(function RoundCard(
       >
         Submit Prediction
       </button>
-    </article>
+    </GlassCard>
   );
 });
 
