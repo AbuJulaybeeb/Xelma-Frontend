@@ -151,6 +151,7 @@ export default function BetModal({ isOpen, onClose, predictionData, onSuccess, o
     return () => { cancelled = true; };
   }, [view, tx.step, publicKey, isConnected, mode, direction, stake, exactPrice]);
 
+  const [outcomeAnnouncement, setOutcomeAnnouncement] = useState('');
   const [prevIsOpen, setPrevIsOpen] = useState(isOpen);
   const [prevPredictionData, setPrevPredictionData] = useState(predictionData);
   if (predictionData !== prevPredictionData && isOpen) {
@@ -300,7 +301,6 @@ export default function BetModal({ isOpen, onClose, predictionData, onSuccess, o
 
   const isTimelineVisible = view === 'confirm' && tx.step !== 'idle';
 
-  const [outcomeAnnouncement, setOutcomeAnnouncement] = useState('');
   const prevTxStepRef = useRef(tx.step);
 
   useEffect(() => {
