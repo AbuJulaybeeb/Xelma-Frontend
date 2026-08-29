@@ -187,7 +187,10 @@ const activeRoundId = useRoundStore((state) => state.activeRound?.id ?? null);
 
   // Clear the entry marker whenever the active round changes.
   useEffect(() => {
-    setEntryPrice(null);
+    const timer = setTimeout(() => {
+      setEntryPrice(null);
+    }, 0);
+    return () => clearTimeout(timer);
   }, [activeRoundId]);
 
   const [stats, setStats] = useState<UserStats | null>(null);
@@ -289,8 +292,11 @@ const activeRoundId = useRoundStore((state) => state.activeRound?.id ?? null);
   }, [isWalletConnected, publicKey]);
 
   useEffect(() => {
-    void fetchStats();
-    void fetchActivities();
+    const timer = setTimeout(() => {
+      void fetchStats();
+      void fetchActivities();
+    }, 0);
+    return () => clearTimeout(timer);
   }, [fetchStats, fetchActivities]);
 
   const refreshInspector = useCallback(async () => {
@@ -315,7 +321,10 @@ const activeRoundId = useRoundStore((state) => state.activeRound?.id ?? null);
   }, [isWalletConnected, publicKey]);
 
   useEffect(() => {
-    void refreshInspector();
+    const timer = setTimeout(() => {
+      void refreshInspector();
+    }, 0);
+    return () => clearTimeout(timer);
   }, [refreshInspector]);
 
   // Bind the audio controller to the settings store so round-resolution cues
