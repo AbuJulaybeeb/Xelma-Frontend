@@ -71,7 +71,7 @@ function renderOpen(prediction: PredictionData = defaultPrediction, onSuccess?: 
       onSuccess={onSuccess}
     />,
   );
-  return { onClose, container: res.container, ...res };
+  return { onClose, ...res };
 }
 
 // ── tests ────────────────────────────────────────────────────────────────────
