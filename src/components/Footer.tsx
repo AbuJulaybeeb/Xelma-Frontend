@@ -113,11 +113,11 @@ export default function Footer({
                   Xelma
                 </span>
               </Link>
-              <p className="mt-3 max-w-xs text-sm leading-relaxed text-gray-500 break-words">
+              <p className="mt-3 max-w-xs text-sm leading-relaxed text-gray-400 break-words">
                 Collective market intelligence on the Stellar blockchain —
                 trustless predictions that settle on-chain.
               </p>
-              <p className="mt-4 text-xs text-gray-600 whitespace-nowrap">
+              <p className="mt-4 text-xs text-gray-400 whitespace-nowrap">
                 © {CURRENT_YEAR} Xelma · MIT License
               </p>
             </div>
@@ -151,7 +151,7 @@ export default function Footer({
                     <Github className="h-4 w-4 shrink-0" aria-hidden="true" />
                     <span className="truncate">GitHub</span>
                     <ExternalLink
-                      className="h-3 w-3 shrink-0 text-gray-500"
+                      className="h-3 w-3 shrink-0 text-gray-400"
                       aria-hidden="true"
                     />
                   </a>
@@ -165,7 +165,7 @@ export default function Footer({
                     <BookOpen className="h-4 w-4 shrink-0" aria-hidden="true" />
                     <span className="truncate">Documentation</span>
                     <ExternalLink
-                      className="h-3 w-3 shrink-0 text-gray-500"
+                      className="h-3 w-3 shrink-0 text-gray-400"
                       aria-hidden="true"
                     />
                   </a>
