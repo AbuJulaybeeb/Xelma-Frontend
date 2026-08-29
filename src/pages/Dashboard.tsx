@@ -638,7 +638,7 @@ const activeRoundId = useRoundStore((state) => state.activeRound?.id ?? null);
             </div>
 
             <div className="lg:col-span-2 flex flex-col gap-6">
-<div className="min-h-[350px] bg-white/5 dark:bg-gray-800/50 p-4 shadow-sm rounded-xl border border-gray-700/30 backdrop-blur-sm">
+<div className="min-h-[350px] glass-card rounded-2xl p-5">
                 <PriceChart height={280} asset={normalizedAsset} entryPrice={entryPrice} onPriceUpdate={handlePriceUpdate} />
               </div>
               {isWalletConnected && (
